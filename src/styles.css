@@ -76,3 +76,53 @@
 }
 .animate-ticker { animation: ticker 60s linear infinite; }
 .animate-ticker-slow { animation: ticker 90s linear infinite; }
+.pause-on-hover:hover .animate-ticker,
+.pause-on-hover:hover .animate-ticker-slow { animation-play-state: paused; }
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(30px,-40px) scale(1.08); }
+}
+@keyframes float-slow-2 {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-40px,30px) scale(1.12); }
+}
+.animate-blob { animation: float-slow 14s ease-in-out infinite; }
+.animate-blob-2 { animation: float-slow-2 18s ease-in-out infinite; }
+
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0,0); }
+  100% { transform: scale(1.12) translate(-2%,-2%); }
+}
+.animate-ken-burns { animation: ken-burns 14s ease-out forwards; }
+
+@keyframes progress-bar { 0% { width: 0%; } 100% { width: 100%; } }
+.animate-progress { animation: progress-bar 6s linear forwards; }
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; }
+.reveal.in-view { animation: fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
+  70% { box-shadow: 0 0 0 18px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+.animate-pulse-ring { animation: pulse-ring 2s infinite; }
+
+.card-lift { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s, border-color .35s; }
+.card-lift:hover { transform: translateY(-6px); }
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 18s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker, .animate-ticker-slow, .animate-blob, .animate-blob-2,
+  .animate-ken-burns, .animate-progress, .animate-pulse-ring, .animate-spin-slow {
+    animation: none !important;
+  }
+  .reveal { opacity: 1 !important; }
+}
