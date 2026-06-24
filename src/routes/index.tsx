@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MapPin, Phone, Mail, ChevronRight, ChevronLeft, ShieldCheck, Award,
   FileCheck, Globe2, Factory, Recycle, Battery, Cpu, Wrench, Beaker,
   PackageCheck, Radio, Scale, Camera, Users, TrendingUp, Clock,
+  MessageCircle, ArrowUp, Pause, Play,
 } from "lucide-react";
 import heroMeeting from "@/assets/hero-meeting.jpg";
 import heroInspection from "@/assets/hero-inspection.jpg";
@@ -35,14 +36,51 @@ const SLIDES = [
   },
 ];
 
+// ---------- Hooks ----------
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in-view");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
+function useCountUp(target: number, start: boolean, duration = 1600) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, start, duration]);
+  return val;
+}
+
 function Home() {
-  const [slide, setSlide] = useState(0);
-  const s = SLIDES[slide];
+  useReveal();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TopBar />
       <Header />
-      <Hero slide={s} onPrev={() => setSlide((i) => (i - 1 + SLIDES.length) % SLIDES.length)} onNext={() => setSlide((i) => (i + 1) % SLIDES.length)} active={slide} setSlide={setSlide} />
+      <Hero />
       <NotificationTicker />
       <AboutSection />
       <WhyChoose />
@@ -52,6 +90,7 @@ function Home() {
       <Partners />
       <CTA />
       <Footer />
+      <FloatingActions />
     </div>
   );
 }
@@ -70,11 +109,17 @@ function TopBar() {
 
 function Header() {
   const links = ["Home", "About", "Services", "Portfolio", "Updates", "Contact"];
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-40">
+    <header className={`bg-white border-b border-border sticky top-0 z-40 transition-all ${scrolled ? "shadow-md py-1" : ""}`}>
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded bg-primary text-primary-foreground grid place-items-center font-bold">BIS</div>
+          <div className="h-12 w-12 rounded bg-primary text-primary-foreground grid place-items-center font-bold shadow-md">BIS</div>
           <div className="leading-tight">
             <div className="font-bold text-primary">BIS Consultancy Services</div>
             <div className="text-[11px] text-muted-foreground">ISO 9001:2015 Certified • Govt. Recognised</div>
@@ -82,41 +127,81 @@ function Header() {
         </div>
         <nav className="hidden lg:flex items-center gap-1">
           {links.map((l) => (
-            <a key={l} href="#" className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors">{l}</a>
+            <a key={l} href="#" className="relative px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors group">
+              {l}
+              <span className="absolute left-3 right-3 -bottom-0.5 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform" />
+            </a>
           ))}
-          <a href="#contact" className="ml-2 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Get Quote</a>
+          <a href="#contact" className="ml-2 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 hover:scale-105 transition">Get Quote</a>
         </nav>
       </div>
     </header>
   );
 }
 
-function Hero({ slide, onPrev, onNext, active, setSlide }: { slide: typeof SLIDES[0]; onPrev: () => void; onNext: () => void; active: number; setSlide: (n: number) => void }) {
+function Hero() {
+  const [slide, setSlide] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const s = SLIDES[slide];
+
+  useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => setSlide((i) => (i + 1) % SLIDES.length), 6000);
+    return () => clearInterval(id);
+  }, [playing, slide]);
+
+  const next = () => setSlide((i) => (i + 1) % SLIDES.length);
+  const prev = () => setSlide((i) => (i - 1 + SLIDES.length) % SLIDES.length);
+
   return (
     <section className="relative bg-brand-deep text-white overflow-hidden">
-      <img src={slide.img} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+      {/* moving gradient blobs */}
+      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-brand-cyan/30 blur-3xl animate-blob" />
+      <div className="absolute -bottom-32 right-10 h-[28rem] w-[28rem] rounded-full bg-primary/40 blur-3xl animate-blob-2" />
+
+      {/* slide images crossfade + ken-burns */}
+      {SLIDES.map((sl, i) => (
+        <img
+          key={i}
+          src={sl.img}
+          alt=""
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === slide ? "opacity-30 animate-ken-burns" : "opacity-0"}`}
+        />
+      ))}
       <div className="absolute inset-0 bg-gradient-to-r from-brand-deep via-brand-deep/85 to-transparent" />
+
       <div className="relative container mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
-        <div>
-          <div className="text-brand-cyan font-semibold tracking-wide uppercase text-sm mb-3">{slide.eyebrow}</div>
-          <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-2xl">{slide.title}</h1>
+        <div key={slide} className="reveal in-view">
+          <div className="text-brand-cyan font-semibold tracking-wide uppercase text-sm mb-3">{s.eyebrow}</div>
+          <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-2xl">{s.title}</h1>
           <ul className="mt-6 space-y-2 text-lg">
-            {slide.bullets.map((b) => (
-              <li key={b} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />{b}</li>
+            {s.bullets.map((b, i) => (
+              <li key={b} className="flex items-center gap-2 reveal in-view" style={{ animationDelay: `${i * 80}ms` }}>
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />{b}
+              </li>
             ))}
           </ul>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#about" className="inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90">About Us</a>
-            <a href="#services" className="inline-flex items-center rounded-md bg-brand-cyan text-white px-6 py-3 font-semibold hover:opacity-90">Our Services</a>
+            <a href="#about" className="inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 transition">About Us</a>
+            <a href="#services" className="inline-flex items-center rounded-md bg-brand-cyan text-white px-6 py-3 font-semibold hover:opacity-90 hover:scale-105 transition">Our Services</a>
           </div>
+
           <div className="mt-8 flex items-center gap-3">
-            <button onClick={onPrev} className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10"><ChevronLeft className="h-5 w-5" /></button>
+            <button onClick={prev} aria-label="Previous slide" className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10 transition"><ChevronLeft className="h-5 w-5" /></button>
             <div className="flex gap-1.5">
               {SLIDES.map((_, i) => (
-                <button key={i} onClick={() => setSlide(i)} className={`h-1.5 rounded-full transition-all ${i === active ? "w-8 bg-brand-cyan" : "w-4 bg-white/40"}`} />
+                <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i + 1}`} className={`h-1.5 rounded-full transition-all ${i === slide ? "w-8 bg-brand-cyan" : "w-4 bg-white/40 hover:bg-white/70"}`} />
               ))}
             </div>
-            <button onClick={onNext} className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10"><ChevronRight className="h-5 w-5" /></button>
+            <button onClick={next} aria-label="Next slide" className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10 transition"><ChevronRight className="h-5 w-5" /></button>
+            <button onClick={() => setPlaying((p) => !p)} aria-label={playing ? "Pause" : "Play"} className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10 transition ml-2">
+              {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </button>
+          </div>
+
+          {/* progress bar */}
+          <div className="mt-4 h-0.5 w-44 bg-white/20 rounded overflow-hidden">
+            {playing && <div key={slide} className="h-full bg-brand-cyan animate-progress" />}
           </div>
         </div>
         <ContactCard />
@@ -127,14 +212,15 @@ function Hero({ slide, onPrev, onNext, active, setSlide }: { slide: typeof SLIDE
 
 function ContactCard() {
   return (
-    <form id="contact" className="bg-white text-foreground rounded-lg shadow-2xl p-6 md:p-7 max-w-md w-full justify-self-end" onSubmit={(e) => e.preventDefault()}>
-      <h3 className="text-xl font-bold text-primary text-center tracking-wide mb-5">CONTACT US</h3>
-      <div className="space-y-3">
-        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary" placeholder="Name" />
-        <input type="email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary" placeholder="Email" />
-        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary" placeholder="Mobile No." />
-        <textarea rows={4} className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary" placeholder="Type Message" />
-        <button className="w-full rounded-md bg-secondary text-secondary-foreground py-2.5 font-semibold hover:opacity-90">SUBMIT</button>
+    <form id="contact" className="bg-white text-foreground rounded-lg shadow-2xl p-6 md:p-7 max-w-md w-full justify-self-end relative overflow-hidden card-lift" onSubmit={(e) => e.preventDefault()}>
+      <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-cyan/20 blur-2xl animate-blob" />
+      <h3 className="text-xl font-bold text-primary text-center tracking-wide mb-5 relative">CONTACT US</h3>
+      <div className="space-y-3 relative">
+        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Name" />
+        <input type="email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Email" />
+        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Mobile No." />
+        <textarea rows={4} className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Type Message" />
+        <button className="w-full rounded-md bg-secondary text-secondary-foreground py-2.5 font-semibold hover:opacity-90 hover:shadow-lg transition">SUBMIT</button>
       </div>
     </form>
   );
@@ -153,10 +239,10 @@ const NOTIFS = [
 
 function NotificationTicker() {
   return (
-    <div className="bg-accent border-y border-border">
+    <div className="bg-accent border-y border-border pause-on-hover">
       <div className="container mx-auto px-4 py-2.5 flex items-center gap-4">
         <span className="shrink-0 inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-bold uppercase px-3 py-1.5 rounded">
-          <Radio className="h-3.5 w-3.5" /> Latest Notification
+          <Radio className="h-3.5 w-3.5 animate-pulse" /> Latest Notification
         </span>
         <div className="overflow-hidden flex-1">
           <div className="flex gap-10 animate-ticker whitespace-nowrap text-sm text-foreground">
@@ -174,7 +260,7 @@ function AboutSection() {
   return (
     <section id="about" className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 reveal">
           <div className="text-secondary font-semibold uppercase text-sm tracking-wider">About Us</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">BIS Consultancy Services Expertise</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
@@ -182,21 +268,21 @@ function AboutSection() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="rounded-xl border border-border bg-card p-7 shadow-sm">
+          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-primary/40">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-secondary uppercase tracking-wider"><ShieldCheck className="h-4 w-4" /> Trusted Expertise</div>
             <h3 className="text-xl font-bold mt-2">End-to-End Certification Services</h3>
             <p className="mt-3 text-muted-foreground">
               BIS Consultancy Services is a trusted provider of certification and regulatory compliance solutions, helping manufacturers and importers navigate complex approval processes with confidence. Our team offers comprehensive single-window services for product certification, testing, training, and compliance management.
             </p>
-            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold">Read More <ChevronRight className="h-4 w-4" /></a>
+            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
           </div>
-          <div className="rounded-xl border border-border bg-card p-7 shadow-sm">
+          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-primary/40" style={{ animationDelay: "120ms" }}>
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-secondary uppercase tracking-wider"><Award className="h-4 w-4" /> BIS Consultancy</div>
             <h3 className="text-xl font-bold mt-2">Certification & Compliance Excellence</h3>
             <p className="mt-3 text-muted-foreground">
               We deliver comprehensive support for certification, testing, compliance, and regulatory approvals. Our experienced professionals help businesses navigate complex standards with ease — ensuring products meet quality, safety, and regulatory benchmarks with a client-focused approach.
             </p>
-            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold">Read More <ChevronRight className="h-4 w-4" /></a>
+            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
           </div>
         </div>
       </div>
@@ -212,19 +298,20 @@ const WHY = [
 
 function WhyChoose() {
   return (
-    <section className="py-16 md:py-20 bg-muted">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+    <section className="py-16 md:py-20 bg-muted relative overflow-hidden">
+      <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-blob" />
+      <div className="container mx-auto px-4 relative">
+        <div className="text-center mb-12 reveal">
           <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Why Choose Us</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Why Choose BIS Consultancy Services?</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
-            With extensive experience in certification, testing, and regulatory compliance, we help businesses navigate complex approval processes with confidence. Our expert team delivers reliable, cost-effective solutions for manufacturers, importers, and businesses across industries.
+            With extensive experience in certification, testing, and regulatory compliance, we help businesses navigate complex approval processes with confidence.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {WHY.map((w) => (
-            <div key={w.title} className="bg-card rounded-xl p-7 border border-border hover:border-primary/40 hover:shadow-lg transition">
-              <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary grid place-items-center"><w.icon className="h-6 w-6" /></div>
+          {WHY.map((w, i) => (
+            <div key={w.title} className="reveal bg-card rounded-xl p-7 border border-border card-lift hover:border-primary/40 hover:shadow-xl" style={{ animationDelay: `${i * 120}ms` }}>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary grid place-items-center group-hover:rotate-6 transition"><w.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 text-lg font-bold">{w.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{w.body}</p>
             </div>
@@ -271,27 +358,27 @@ function ServicesSection() {
   return (
     <section id="services" className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 reveal">
           <div className="text-secondary font-semibold uppercase text-sm tracking-wider">What We Offer</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Our Services</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
-            End-to-end certification and regulatory compliance solutions tailored to your business needs. Our experienced team ensures smooth registration, faster approvals, and reliable support.
+            End-to-end certification and regulatory compliance solutions tailored to your business needs.
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {keys.map((k) => (
-            <button key={k} onClick={() => setActive(k)} className={`px-5 py-2.5 rounded-md text-sm font-semibold transition ${active === k ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent"}`}>
+            <button key={k} onClick={() => setActive(k)} className={`px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${active === k ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-muted text-foreground hover:bg-accent hover:scale-105"}`}>
               {k}
             </button>
           ))}
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {TABS[active].map((srv) => (
-            <div key={srv.name} className="group rounded-xl border border-border bg-card p-6 hover:border-primary hover:shadow-lg transition">
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-cyan text-primary-foreground grid place-items-center"><srv.icon className="h-6 w-6" /></div>
+        <div key={active} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {TABS[active].map((srv, i) => (
+            <div key={srv.name} className="reveal group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-cyan text-primary-foreground grid place-items-center group-hover:rotate-6 group-hover:scale-110 transition-transform"><srv.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 font-bold text-base">{srv.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{srv.desc}</p>
-              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">Learn more <ChevronRight className="h-4 w-4" /></a>
+              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></a>
             </div>
           ))}
         </div>
@@ -301,31 +388,45 @@ function ServicesSection() {
 }
 
 const STATS = [
-  { n: "700+", label: "EPR Registrations" },
-  { n: "550+", label: "BIS Registrations" },
-  { n: "1750", label: "Other Registrations" },
-  { n: "2850", label: "Clients Served" },
+  { n: 700, suffix: "+", label: "EPR Registrations" },
+  { n: 550, suffix: "+", label: "BIS Registrations" },
+  { n: 1750, suffix: "", label: "Other Registrations" },
+  { n: 2850, suffix: "", label: "Clients Served" },
 ];
 
-function Achievements() {
+function StatCard({ s, start, delay }: { s: typeof STATS[0]; start: boolean; delay: number }) {
+  const val = useCountUp(s.n, start);
   return (
-    <section className="py-16 md:py-20 bg-brand-deep text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_50%)]" />
+    <div className="reveal text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur card-lift hover:bg-white/10 hover:border-brand-cyan/50" style={{ animationDelay: `${delay}ms` }}>
+      <div className="text-4xl md:text-5xl font-bold text-brand-cyan tabular-nums">{val.toLocaleString()}{s.suffix}</div>
+      <div className="mt-2 text-sm uppercase tracking-wider text-white/80">{s.label}</div>
+    </div>
+  );
+}
+
+function Achievements() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [start, setStart] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setStart(true), { threshold: 0.3 });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <section ref={ref} className="py-16 md:py-20 bg-brand-deep text-white relative overflow-hidden">
+      <div className="absolute -top-20 left-1/4 h-72 w-72 rounded-full bg-brand-cyan/20 blur-3xl animate-blob" />
+      <div className="absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-primary/40 blur-3xl animate-blob-2" />
       <div className="container mx-auto px-4 relative">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 reveal">
           <div className="text-brand-cyan font-semibold uppercase text-sm tracking-wider">Our Achievements</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2">Trusted Across Industries</h2>
           <p className="mt-4 max-w-3xl mx-auto text-white/80">
-            Delivering trusted BIS, EPR, and regulatory compliance solutions with proven expertise. Our achievements reflect the confidence businesses place in our services.
+            Delivering trusted BIS, EPR, and regulatory compliance solutions with proven expertise.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {STATS.map((s) => (
-            <div key={s.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
-              <div className="text-4xl md:text-5xl font-bold text-brand-cyan">{s.n}</div>
-              <div className="mt-2 text-sm uppercase tracking-wider text-white/80">{s.label}</div>
-            </div>
-          ))}
+          {STATS.map((s, i) => <StatCard key={s.label} s={s} start={start} delay={i * 100} />)}
         </div>
       </div>
     </section>
@@ -340,27 +441,43 @@ const REVIEWS = [
 ];
 
 function Testimonials() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIdx((i) => (i + 1) % REVIEWS.length), 5000);
+    return () => clearInterval(id);
+  }, []);
   return (
-    <section className="py-16 md:py-20 bg-muted">
+    <section className="py-16 md:py-20 bg-muted overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 reveal">
           <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Testimonials</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Stories of Satisfaction</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
-            Built on transparency, expertise, and consistent performance, our client relationships speak for themselves.
+            Built on transparency, expertise, and consistent performance.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {REVIEWS.map((r) => (
-            <blockquote key={r.name} className="bg-card rounded-xl p-7 border border-border shadow-sm">
-              <div className="text-4xl text-primary leading-none">"</div>
-              <p className="text-foreground italic">{r.body}</p>
-              <footer className="mt-4 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary grid place-items-center font-bold">{r.name[0]}</div>
-                <div className="font-semibold">{r.name}</div>
-              </footer>
-            </blockquote>
-          ))}
+        <div className="relative max-w-5xl mx-auto">
+          <div className="overflow-hidden">
+            <div className="flex transition-transform duration-700 ease-out" style={{ transform: `translateX(-${idx * 100}%)` }}>
+              {REVIEWS.map((r) => (
+                <blockquote key={r.name} className="w-full shrink-0 px-2">
+                  <div className="bg-card rounded-xl p-8 md:p-10 border border-border shadow-lg mx-auto max-w-3xl">
+                    <div className="text-5xl text-primary leading-none">"</div>
+                    <p className="text-foreground italic text-lg">{r.body}</p>
+                    <footer className="mt-5 flex items-center gap-3">
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary to-brand-cyan text-white grid place-items-center font-bold">{r.name[0]}</div>
+                      <div className="font-semibold">{r.name}</div>
+                    </footer>
+                  </div>
+                </blockquote>
+              ))}
+            </div>
+          </div>
+          <div className="mt-6 flex justify-center gap-2">
+            {REVIEWS.map((_, i) => (
+              <button key={i} onClick={() => setIdx(i)} aria-label={`Testimonial ${i + 1}`} className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/70"}`} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -370,16 +487,18 @@ function Testimonials() {
 function Partners() {
   const partners = ["SD Metals", "Flatkick", "Star Kidz", "Aygo", "TrueLite", "Shufab", "Acme Ltd", "GreenTech"];
   return (
-    <section className="py-14 bg-background border-y border-border">
+    <section className="py-14 bg-background border-y border-border pause-on-hover">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 reveal">
           <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Trusted By</div>
           <h2 className="text-2xl md:text-3xl font-bold mt-2 text-primary">Our Partners</h2>
         </div>
-        <div className="overflow-hidden">
+        <div className="overflow-hidden relative">
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           <div className="flex gap-10 animate-ticker-slow whitespace-nowrap">
             {[...partners, ...partners].map((p, i) => (
-              <div key={i} className="shrink-0 h-20 w-44 rounded-lg border border-border bg-muted grid place-items-center font-bold text-muted-foreground">{p}</div>
+              <div key={i} className="shrink-0 h-20 w-44 rounded-lg border border-border bg-muted grid place-items-center font-bold text-muted-foreground hover:bg-card hover:text-primary hover:border-primary/40 transition">{p}</div>
             ))}
           </div>
         </div>
@@ -390,15 +509,17 @@ function Partners() {
 
 function CTA() {
   return (
-    <section className="py-16 bg-gradient-to-r from-primary to-brand-cyan text-primary-foreground">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
+    <section className="py-16 bg-gradient-to-r from-primary to-brand-cyan text-primary-foreground relative overflow-hidden">
+      <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-white/10 blur-3xl animate-blob" />
+      <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl animate-blob-2" />
+      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 relative">
+        <div className="reveal">
           <h2 className="text-2xl md:text-3xl font-bold">Trusted Regulatory Experts</h2>
           <p className="mt-2 max-w-2xl text-white/90">
             From BIS and EPR registrations to specialized certification services — take the next step toward business excellence with confidence.
           </p>
         </div>
-        <a href="#contact" className="shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90">Get Expert Assistance</a>
+        <a href="#contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</a>
       </div>
     </section>
   );
@@ -419,7 +540,7 @@ function Footer() {
           <h4 className="text-white font-bold mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm">
             {["About Us", "Services", "Portfolio", "Updates", "Contact"].map((l) => (
-              <li key={l}><a href="#" className="hover:text-brand-cyan">{l}</a></li>
+              <li key={l}><a href="#" className="hover:text-brand-cyan transition">{l}</a></li>
             ))}
           </ul>
         </div>
@@ -427,7 +548,7 @@ function Footer() {
           <h4 className="text-white font-bold mb-3">Top Services</h4>
           <ul className="space-y-2 text-sm">
             {["BIS Registration", "FMCS Certification", "EPR Compliance", "FSSAI", "WPC Approval", "LMPC"].map((l) => (
-              <li key={l}><a href="#" className="hover:text-brand-cyan">{l}</a></li>
+              <li key={l}><a href="#" className="hover:text-brand-cyan transition">{l}</a></li>
             ))}
           </ul>
         </div>
@@ -445,5 +566,34 @@ function Footer() {
         © {new Date().getFullYear()} BIS Consultancy Services. All rights reserved.
       </div>
     </footer>
+  );
+}
+
+function FloatingActions() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      <a
+        href="https://wa.me/919800000000"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat on WhatsApp"
+        className="h-14 w-14 grid place-items-center rounded-full bg-green-500 text-white shadow-xl hover:scale-110 transition animate-pulse-ring"
+      >
+        <MessageCircle className="h-6 w-6" />
+      </a>
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+        className={`h-12 w-12 grid place-items-center rounded-full bg-primary text-primary-foreground shadow-xl hover:scale-110 transition ${show ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      >
+        <ArrowUp className="h-5 w-5" />
+      </button>
+    </div>
   );
 }
