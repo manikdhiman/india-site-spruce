@@ -1,7 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-// 🔴 1. Import Nitro at the top
+// 🔴 Import the official TanStack Start build engine plugin
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 
 export default defineConfig({
@@ -10,8 +11,10 @@ export default defineConfig({
     port: 8080,
   },
   plugins: [
-    // 🔴 2. Add nitro() right inside your plugins array
-    nitro(), 
+    /* 🔴 This handles all full-stack SSR mechanics, pages, and API routes */
+    tanstackStart(),
+    /* 🔴 This compiles it cleanly as serverless edge bundles for Vercel */
+    nitro(),
     react()
   ],
   resolve: {
