@@ -471,7 +471,7 @@ function CTA() {
             From BIS and EPR registrations to specialized certification services — take the next step toward business excellence with confidence.
           </p>
         </div>
-        <a href="#contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</a>
+        <Link to="/contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</Link>
       </div>
     </section>
   );
