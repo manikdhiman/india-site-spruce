@@ -1,15 +1,17 @@
-import { defineConfig } from "@tanstack/react-start/config";
+import { defineConfig } from "vite";
 import path from "path";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react-swc";
 
-// ⚡ We use the native TanStack defineConfig wrapper. 
-// This automatically injects the exact plugins, compiler adapters, and 
-// server bundles needed for Vercel without manual arrays.
 export default defineConfig({
-  vite: {
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-      },
+  plugins: [
+    // 🔴 Native framework plugins that Vite understands cleanly
+    tanstackStart(),
+    viteReact()
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
