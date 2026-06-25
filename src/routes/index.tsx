@@ -326,11 +326,11 @@ function ServicesSection() {
         </div>
         <div key={active} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TABS[active].map((srv, i) => (
-            <div key={srv.name} className="reveal group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
+            <div key={srv.name} className="reveal in-view group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
               <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-cyan text-primary-foreground grid place-items-center group-hover:rotate-6 group-hover:scale-110 transition-transform"><srv.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 font-bold text-base">{srv.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{srv.desc}</p>
-              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></a>
+              <Link to="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></Link>
             </div>
           ))}
         </div>
