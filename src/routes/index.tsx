@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  MapPin, Phone, Mail, ChevronRight, ChevronLeft, ShieldCheck, Award,
+  ChevronRight, ChevronLeft, ShieldCheck, Award,
   FileCheck, Globe2, Factory, Recycle, Battery, Cpu, Wrench, Beaker,
-  PackageCheck, Radio, Scale, Camera, Users, TrendingUp, Clock,
-  MessageCircle, ArrowUp, Pause, Play,
+  PackageCheck, Radio, Scale, Camera, TrendingUp, Clock,
+  Pause, Play,
 } from "lucide-react";
 import heroMeeting from "@/assets/hero-meeting.jpg";
 import heroInspection from "@/assets/hero-inspection.jpg";
