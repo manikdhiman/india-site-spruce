@@ -77,9 +77,7 @@ function useCountUp(target: number, start: boolean, duration = 1600) {
 function Home() {
   useReveal();
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <TopBar />
-      <Header />
+    <>
       <Hero />
       <NotificationTicker />
       <AboutSection />
@@ -89,53 +87,7 @@ function Home() {
       <Testimonials />
       <Partners />
       <CTA />
-      <Footer />
-      <FloatingActions />
-    </div>
-  );
-}
-
-function TopBar() {
-  return (
-    <div className="bg-topbar text-white text-xs md:text-sm">
-      <div className="container mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Certification Wing — Delhi NCR</span>
-        <span className="hidden md:flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> BIS Consultancy Services HQ</span>
-        <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> +91 98XXX XXXXX</span>
-      </div>
-    </div>
-  );
-}
-
-function Header() {
-  const links = ["Home", "About", "Services", "Portfolio", "Updates", "Contact"];
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <header className={`bg-white border-b border-border sticky top-0 z-40 transition-all ${scrolled ? "shadow-md py-1" : ""}`}>
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded bg-primary text-primary-foreground grid place-items-center font-bold shadow-md">BIS</div>
-          <div className="leading-tight">
-            <div className="font-bold text-primary">BIS Consultancy Services</div>
-            <div className="text-[11px] text-muted-foreground">ISO 9001:2015 Certified • Govt. Recognised</div>
-          </div>
-        </div>
-        <nav className="hidden lg:flex items-center gap-1">
-          {links.map((l) => (
-            <a key={l} href="#" className="relative px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors group">
-              {l}
-              <span className="absolute left-3 right-3 -bottom-0.5 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform" />
-            </a>
-          ))}
-          <a href="#contact" className="ml-2 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 hover:scale-105 transition">Get Quote</a>
-        </nav>
-      </div>
-    </header>
+    </>
   );
 }
 
