@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  MapPin, Phone, Mail, ChevronRight, ChevronLeft, ShieldCheck, Award,
+  ChevronRight, ChevronLeft, ShieldCheck, Award,
   FileCheck, Globe2, Factory, Recycle, Battery, Cpu, Wrench, Beaker,
-  PackageCheck, Radio, Scale, Camera, Users, TrendingUp, Clock,
-  MessageCircle, ArrowUp, Pause, Play,
+  PackageCheck, Radio, Scale, Camera, TrendingUp, Clock,
+  Pause, Play,
 } from "lucide-react";
 import heroMeeting from "@/assets/hero-meeting.jpg";
 import heroInspection from "@/assets/hero-inspection.jpg";
@@ -77,9 +77,7 @@ function useCountUp(target: number, start: boolean, duration = 1600) {
 function Home() {
   useReveal();
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <TopBar />
-      <Header />
+    <>
       <Hero />
       <NotificationTicker />
       <AboutSection />
@@ -89,53 +87,7 @@ function Home() {
       <Testimonials />
       <Partners />
       <CTA />
-      <Footer />
-      <FloatingActions />
-    </div>
-  );
-}
-
-function TopBar() {
-  return (
-    <div className="bg-topbar text-white text-xs md:text-sm">
-      <div className="container mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Certification Wing — Delhi NCR</span>
-        <span className="hidden md:flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> BIS Consultancy Services HQ</span>
-        <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> +91 98XXX XXXXX</span>
-      </div>
-    </div>
-  );
-}
-
-function Header() {
-  const links = ["Home", "About", "Services", "Portfolio", "Updates", "Contact"];
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <header className={`bg-white border-b border-border sticky top-0 z-40 transition-all ${scrolled ? "shadow-md py-1" : ""}`}>
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded bg-primary text-primary-foreground grid place-items-center font-bold shadow-md">BIS</div>
-          <div className="leading-tight">
-            <div className="font-bold text-primary">BIS Consultancy Services</div>
-            <div className="text-[11px] text-muted-foreground">ISO 9001:2015 Certified • Govt. Recognised</div>
-          </div>
-        </div>
-        <nav className="hidden lg:flex items-center gap-1">
-          {links.map((l) => (
-            <a key={l} href="#" className="relative px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors group">
-              {l}
-              <span className="absolute left-3 right-3 -bottom-0.5 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform" />
-            </a>
-          ))}
-          <a href="#contact" className="ml-2 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 hover:scale-105 transition">Get Quote</a>
-        </nav>
-      </div>
-    </header>
+    </>
   );
 }
 
@@ -374,11 +326,11 @@ function ServicesSection() {
         </div>
         <div key={active} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TABS[active].map((srv, i) => (
-            <div key={srv.name} className="reveal group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
+            <div key={srv.name} className="reveal in-view group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
               <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-cyan text-primary-foreground grid place-items-center group-hover:rotate-6 group-hover:scale-110 transition-transform"><srv.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 font-bold text-base">{srv.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{srv.desc}</p>
-              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></a>
+              <Link to="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></Link>
             </div>
           ))}
         </div>
@@ -519,81 +471,9 @@ function CTA() {
             From BIS and EPR registrations to specialized certification services — take the next step toward business excellence with confidence.
           </p>
         </div>
-        <a href="#contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</a>
+        <Link to="/contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</Link>
       </div>
     </section>
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-brand-deep text-white/85">
-      <div className="container mx-auto px-4 py-14 grid md:grid-cols-4 gap-8">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded bg-white text-primary grid place-items-center font-bold">BIS</div>
-            <div className="font-bold text-white">BIS Consultancy Services</div>
-          </div>
-          <p className="mt-4 text-sm">India's pioneer in ISO-certified product certification consulting. Helping businesses meet quality, safety, and regulatory requirements.</p>
-        </div>
-        <div>
-          <h4 className="text-white font-bold mb-3">Quick Links</h4>
-          <ul className="space-y-2 text-sm">
-            {["About Us", "Services", "Portfolio", "Updates", "Contact"].map((l) => (
-              <li key={l}><a href="#" className="hover:text-brand-cyan transition">{l}</a></li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-white font-bold mb-3">Top Services</h4>
-          <ul className="space-y-2 text-sm">
-            {["BIS Registration", "FMCS Certification", "EPR Compliance", "FSSAI", "WPC Approval", "LMPC"].map((l) => (
-              <li key={l}><a href="#" className="hover:text-brand-cyan transition">{l}</a></li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-white font-bold mb-3">Contact</h4>
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Delhi NCR, India</li>
-            <li className="flex items-center gap-2"><Phone className="h-4 w-4" /> +91 98XXX XXXXX</li>
-            <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> info@bisconsultancyservices.com</li>
-            <li className="flex items-center gap-2"><Users className="h-4 w-4" /> 2850+ Clients Served</li>
-          </ul>
-        </div>
-      </div>
-      <div className="border-t border-white/10 py-5 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} BIS Consultancy Services. All rights reserved.
-      </div>
-    </footer>
-  );
-}
-
-function FloatingActions() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      <a
-        href="https://wa.me/919800000000"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Chat on WhatsApp"
-        className="h-14 w-14 grid place-items-center rounded-full bg-green-500 text-white shadow-xl hover:scale-110 transition animate-pulse-ring"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </a>
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Back to top"
-        className={`h-12 w-12 grid place-items-center rounded-full bg-primary text-primary-foreground shadow-xl hover:scale-110 transition ${show ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-      >
-        <ArrowUp className="h-5 w-5" />
-      </button>
-    </div>
-  );
-}
