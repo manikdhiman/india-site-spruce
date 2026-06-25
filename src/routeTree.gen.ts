@@ -15,6 +15,8 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiUsageSummaryRouteImport } from './routes/api.usage-summary'
+import { Route as ApiChatIdStreamRouteImport } from './routes/api.chat.$id.stream'
 
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
@@ -46,6 +48,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUsageSummaryRoute = ApiUsageSummaryRouteImport.update({
+  id: '/api/usage-summary',
+  path: '/api/usage-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatIdStreamRoute = ApiChatIdStreamRouteImport.update({
+  id: '/api/chat/$id/stream',
+  path: '/api/chat/$id/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/updates': typeof UpdatesRoute
+  '/api/usage-summary': typeof ApiUsageSummaryRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/updates': typeof UpdatesRoute
+  '/api/usage-summary': typeof ApiUsageSummaryRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +87,8 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/services': typeof ServicesRoute
   '/updates': typeof UpdatesRoute
+  '/api/usage-summary': typeof ApiUsageSummaryRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +99,18 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/services'
     | '/updates'
+    | '/api/usage-summary'
+    | '/api/chat/$id/stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/portfolio' | '/services' | '/updates'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/portfolio'
+    | '/services'
+    | '/updates'
+    | '/api/usage-summary'
+    | '/api/chat/$id/stream'
   id:
     | '__root__'
     | '/'
@@ -91,6 +119,8 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/services'
     | '/updates'
+    | '/api/usage-summary'
+    | '/api/chat/$id/stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,6 +130,8 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   ServicesRoute: typeof ServicesRoute
   UpdatesRoute: typeof UpdatesRoute
+  ApiUsageSummaryRoute: typeof ApiUsageSummaryRoute
+  ApiChatIdStreamRoute: typeof ApiChatIdStreamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +178,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/usage-summary': {
+      id: '/api/usage-summary'
+      path: '/api/usage-summary'
+      fullPath: '/api/usage-summary'
+      preLoaderRoute: typeof ApiUsageSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/$id/stream': {
+      id: '/api/chat/$id/stream'
+      path: '/api/chat/$id/stream'
+      fullPath: '/api/chat/$id/stream'
+      preLoaderRoute: typeof ApiChatIdStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +202,8 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   ServicesRoute: ServicesRoute,
   UpdatesRoute: UpdatesRoute,
+  ApiUsageSummaryRoute: ApiUsageSummaryRoute,
+  ApiChatIdStreamRoute: ApiChatIdStreamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
