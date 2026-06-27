@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
-import { submitInquiryAction } from "@/components/inquiryHandler";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -21,7 +20,7 @@ function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Input bindings
+  // Input states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -35,9 +34,14 @@ function ContactPage() {
     setErrorMsg("");
 
     try {
-      const response = await submitInquiryAction({
-        data: { name, email, phone, company, service, message, type: "contact_page" }
+      // Send a clean network request directly to our secure API path
+      const res = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, company, service, message }),
       });
+
+      const response = await res.json();
 
       if (response.success) {
         setSubmitted(true);
@@ -45,7 +49,7 @@ function ContactPage() {
         setErrorMsg(response.error || "Failed to deliver inquiry.");
       }
     } catch (err: any) {
-      setErrorMsg("An unexpected routing exception occurred.");
+      setErrorMsg("An unexpected connection issue occurred.");
     } finally {
       setIsSubmitting(false);
     }
