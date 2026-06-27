@@ -2,6 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
+import { createServerFn } from "@tanstack/react-start";
+import { sendInquiryEmail } from "@/components/sendEmail";
+
+// Define a secure execution endpoint right here
+const triggerEmailSubmit = createServerFn({ method: "POST" })
+  .validator((data: any) => data)
+  .handler(async ({ data }) => {
+    // This executes securely on Vercel backend
+    return await sendInquiryEmail(data);
+  });
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -20,7 +30,6 @@ function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Input states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,14 +43,10 @@ function ContactPage() {
     setErrorMsg("");
 
     try {
-      // Send a clean network request directly to our secure API path
-      const res = await fetch("/api/inquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, company, service, message }),
+      // Execute the local server function safely
+      const response = await triggerEmailSubmit({
+        data: { name, email, phone, company, service, message }
       });
-
-      const response = await res.json();
 
       if (response.success) {
         setSubmitted(true);
@@ -49,7 +54,7 @@ function ContactPage() {
         setErrorMsg(response.error || "Failed to deliver inquiry.");
       }
     } catch (err: any) {
-      setErrorMsg("An unexpected connection issue occurred.");
+      setErrorMsg("An unexpected server boundary error occurred.");
     } finally {
       setIsSubmitting(false);
     }
