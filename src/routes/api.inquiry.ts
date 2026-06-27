@@ -1,9 +1,15 @@
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
+import { createServerFileRoute } from "@tanstack/react-start/server";
 import { Resend } from "resend";
 
-export const Route = createAPIFileRoute("/api/inquiry")({
-  POST: async ({ request }) => {
+// ⚡ TanStack Start uses createServerFileRoute now instead of createAPIFileRoute
+export const Route = createServerFileRoute("/api/inquiry")({
+  handler: async ({ request }) => {
+    // We only accept POST requests for form submissions
+    if (request.method !== "POST") {
+      return json({ success: false, error: "Method not allowed" }, { status: 405 });
+    }
+
     try {
       const data = await request.json();
       const apiKey = process.env.RESEND_API_KEY;
