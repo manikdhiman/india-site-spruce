@@ -7,10 +7,15 @@ export default defineConfig({
       entry: "server",
     },
   },
-  // ⚡ This tells the compiler to safely treat 'resend' as a standard external server dependency
+  // ⚡ Explicitly intercept the Rolldown/Vite compilation layer for both client and server bundlers
   vite: {
     ssr: {
       external: ["resend"],
+    },
+    build: {
+      rollupOptions: {
+        external: ["resend"],
+      },
     },
   },
 });
