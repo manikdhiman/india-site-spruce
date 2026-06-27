@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
+import { submitInquiryAction } from "@/components/inquiryHandler";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -17,6 +18,39 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Input bindings
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [company, setCompany] = useState("");
+  const [service, setService] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg("");
+
+    try {
+      const response = await submitInquiryAction({
+        data: { name, email, phone, company, service, message, type: "contact_page" }
+      });
+
+      if (response.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMsg(response.error || "Failed to deliver inquiry.");
+      }
+    } catch (err: any) {
+      setErrorMsg("An unexpected routing exception occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -66,11 +100,18 @@ function ContactPage() {
           </div>
 
           <form
-            onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
+            onSubmit={handleFormSubmit}
             className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4"
           >
             <h2 className="text-2xl font-bold text-primary">Request a Free Quote</h2>
             <p className="text-sm text-muted-foreground">Share a few details and our team will reach out within one business day.</p>
+            
+            {errorMsg && (
+              <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive">
+                {errorMsg}
+              </div>
+            )}
+
             {submitted ? (
               <div className="rounded-md bg-brand-cyan/10 border border-brand-cyan/30 p-4 text-sm">
                 Thanks! Your enquiry has been received. We'll be in touch shortly.
@@ -78,25 +119,27 @@ function ContactPage() {
             ) : (
               <>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <input required placeholder="Full Name" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
-                  <input required type="email" placeholder="Email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <input required placeholder="Mobile No." className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
-                  <input placeholder="Company" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile No." className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                  <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
                 </div>
-                <select className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-background">
+                <select required value={service} onChange={(e) => setService(e.target.value)} className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-background">
                   <option value="">Service of interest</option>
-                  <option>BIS Registration</option>
-                  <option>FMCS Certification</option>
-                  <option>EPR Compliance</option>
-                  <option>FSSAI</option>
-                  <option>WPC Approval</option>
-                  <option>LMPC</option>
-                  <option>STQC / Other</option>
+                  <option value="BIS Registration">BIS Registration</option>
+                  <option value="FMCS Certification">FMCS Certification</option>
+                  <option value="EPR Compliance">EPR Compliance</option>
+                  <option value="FSSAI">FSSAI</option>
+                  <option value="WPC Approval">WPC Approval</option>
+                  <option value="LMPC">LMPC</option>
+                  <option value="STQC / Other">STQC / Other</option>
                 </select>
-                <textarea rows={5} placeholder="Tell us about your product / requirement" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
-                <button className="w-full rounded-md bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 hover:shadow-lg transition">SUBMIT ENQUIRY</button>
+                <textarea required rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell us about your product / requirement" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                <button disabled={isSubmitting} className="w-full rounded-md bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 hover:shadow-lg transition disabled:opacity-50">
+                  {isSubmitting ? "SENDING..." : "SUBMIT ENQUIRY"}
+                </button>
               </>
             )}
           </form>
