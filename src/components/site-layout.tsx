@@ -181,16 +181,43 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageHeader({ eyebrow, title, subtitle }: { eyebrow?: string; title: string; subtitle?: string }) {
+interface PageHeaderProps {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}
+
+export function PageHeader({ eyebrow, title, subtitle }: PageHeaderProps) {
   return (
-    <section className="bg-brand-deep text-white relative overflow-hidden">
-      <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-brand-cyan/20 blur-3xl animate-blob" />
-      <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-primary/40 blur-3xl animate-blob-2" />
-      <div className="container mx-auto px-4 py-16 md:py-20 relative">
-        {eyebrow && <div className="text-brand-cyan font-semibold uppercase tracking-wider text-sm">{eyebrow}</div>}
-        <h1 className="text-3xl md:text-5xl font-bold mt-2">{title}</h1>
-        {subtitle && <p className="mt-4 max-w-3xl text-white/85 text-lg">{subtitle}</p>}
+    // ⚡ Retained your exact original responsive sizing container with the updated background color
+    <div className="relative bg-[#0F3D5E] text-white py-16 md:py-24 overflow-hidden">
+      
+      {/* 🖼️ Restored: Ambient background image layer with rich opacity layer mix */}
+      <div className="absolute inset-0 opacity-15 mix-blend-overlay pointer-events-none">
+        <div className="w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
       </div>
-    </section>
+
+      {/* Modern gradient overlay for seamless contrast across screen widths */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10 pointer-events-none" />
+      <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-sky-500/10 blur-3xl" />
+
+      {/* 🎯 Fixed: Wrapped in 'container mx-auto px-4' to force the layouts to align across your site */}
+      <div className="relative container mx-auto px-4">
+        <div className="max-w-4xl">
+          {/* Accent text styled cleanly with your sky blue signature format */}
+          <div className="text-sky-300 font-semibold uppercase text-xs md:text-sm tracking-wider mb-3">
+            {eyebrow}
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight md:leading-none">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-6 text-white/80 text-sm md:text-lg max-w-2xl leading-relaxed">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
