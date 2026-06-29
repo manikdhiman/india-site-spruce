@@ -91,6 +91,10 @@ function Home() {
   );
 }
 
+
+
+
+// ⚡ Main Hero Component Function
 function Hero() {
   const [slide, setSlide] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -106,43 +110,53 @@ function Hero() {
   const prev = () => setSlide((i) => (i - 1 + SLIDES.length) % SLIDES.length);
 
   return (
-    <section className="relative bg-brand-deep text-white overflow-hidden">
-      {/* moving gradient blobs */}
-      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-brand-cyan/30 blur-3xl animate-blob" />
-      <div className="absolute -bottom-32 right-10 h-[28rem] w-[28rem] rounded-full bg-primary/40 blur-3xl animate-blob-2" />
+    <section className="relative bg-[#0F3D5E] text-white overflow-hidden">
+      
+      {/* Moving ambient blobs updated to matching blue tones */}
+      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-400/20 blur-3xl animate-blob" />
+      <div className="absolute -bottom-32 right-10 h-[28rem] w-[28rem] rounded-full bg-sky-600/20 blur-3xl animate-blob-2" />
 
-      {/* slide images crossfade + ken-burns */}
+      {/* Slide images crossfade + ken-burns */}
       {SLIDES.map((sl, i) => (
         <img
           key={i}
           src={sl.img}
           alt=""
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === slide ? "opacity-30 animate-ken-burns" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === slide ? "opacity-20 animate-ken-burns" : "opacity-0"}`}
         />
       ))}
-      <div className="absolute inset-0 bg-gradient-to-r from-brand-deep via-brand-deep/85 to-transparent" />
+      
+      {/* Changed the gradient backdrop overlay from purple to your authentic Navy Blue gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0F3D5E] via-[#0F3D5E]/90 to-transparent" />
 
       <div className="relative container mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
         <div key={slide} className="reveal in-view">
-          <div className="text-brand-cyan font-semibold tracking-wide uppercase text-sm mb-3">{s.eyebrow}</div>
+          {/* Accent text changed to high-contrast sky blue */}
+          <div className="text-sky-300 font-semibold tracking-wide uppercase text-sm mb-3">{s.eyebrow}</div>
           <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-2xl">{s.title}</h1>
           <ul className="mt-6 space-y-2 text-lg">
             {s.bullets.map((b, i) => (
               <li key={b} className="flex items-center gap-2 reveal in-view" style={{ animationDelay: `${i * 80}ms` }}>
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />{b}
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />{b}
               </li>
             ))}
           </ul>
+          
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#about" className="inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 transition">About Us</a>
-            <a href="#services" className="inline-flex items-center rounded-md bg-brand-cyan text-white px-6 py-3 font-semibold hover:opacity-90 hover:scale-105 transition">Our Services</a>
+            <a href="#about" className="inline-flex items-center rounded-md bg-white text-[#0F3D5E] px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 transition">About Us</a>
+            <a href="#services" className="inline-flex items-center rounded-md bg-sky-500 text-white px-6 py-3 font-semibold hover:bg-sky-600 hover:scale-105 transition">Our Services</a>
           </div>
 
           <div className="mt-8 flex items-center gap-3">
             <button onClick={prev} aria-label="Previous slide" className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10 transition"><ChevronLeft className="h-5 w-5" /></button>
             <div className="flex gap-1.5">
               {SLIDES.map((_, i) => (
-                <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i + 1}`} className={`h-1.5 rounded-full transition-all ${i === slide ? "w-8 bg-brand-cyan" : "w-4 bg-white/40 hover:bg-white/70"}`} />
+                <button 
+                  key={i} 
+                  onClick={() => setSlide(i)} 
+                  aria-label={`Go to slide ${i + 1}`} 
+                  className={`h-1.5 rounded-full transition-all ${i === slide ? "w-8 bg-sky-400" : "w-4 bg-white/40 hover:bg-white/70"}`} 
+                />
               ))}
             </div>
             <button onClick={next} aria-label="Next slide" className="h-9 w-9 grid place-items-center rounded-full border border-white/30 hover:bg-white/10 transition"><ChevronRight className="h-5 w-5" /></button>
@@ -151,33 +165,54 @@ function Hero() {
             </button>
           </div>
 
-          {/* progress bar */}
+          {/* Progress bar tracking engine updated to matching sky blue */}
           <div className="mt-4 h-0.5 w-44 bg-white/20 rounded overflow-hidden">
-            {playing && <div key={slide} className="h-full bg-brand-cyan animate-progress" />}
+            {playing && <div key={slide} className="h-full bg-sky-400 animate-progress" />}
           </div>
         </div>
+        
+        {/* ⚡ Renders the Contact Card form safely right here inside the layout flexbox */}
         <ContactCard />
       </div>
     </section>
   );
 }
 
+// 🎨 Sub-component: Added here directly below Hero to solve the missing variable crash!
 function ContactCard() {
   return (
-    <form id="contact" className="bg-white text-foreground rounded-lg shadow-2xl p-6 md:p-7 max-w-md w-full justify-self-end relative overflow-hidden card-lift" onSubmit={(e) => e.preventDefault()}>
-      <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-cyan/20 blur-2xl animate-blob" />
-      <h3 className="text-xl font-bold text-primary text-center tracking-wide mb-5 relative">CONTACT US</h3>
-      <div className="space-y-3 relative">
-        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Name" />
-        <input type="email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Email" />
-        <input className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Mobile No." />
-        <textarea rows={4} className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" placeholder="Type Message" />
-        <button className="w-full rounded-md bg-secondary text-secondary-foreground py-2.5 font-semibold hover:opacity-90 hover:shadow-lg transition">SUBMIT</button>
+    <div className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground">
+      <h3 className="text-xl font-bold text-center tracking-tight text-[#0F3D5E] uppercase">
+        Contact Us
+      </h3>
+      <div className="space-y-3">
+        <input 
+          type="text" 
+          placeholder="Name" 
+          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
+        />
+        <input 
+          type="email" 
+          placeholder="Email" 
+          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
+        />
+        <input 
+          type="text" 
+          placeholder="Mobile No." 
+          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
+        />
+        <textarea 
+          rows={3} 
+          placeholder="Type Message" 
+          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
+        />
+        <button className="w-full rounded-md bg-[#0F3D5E] text-white py-2.5 font-semibold text-sm hover:bg-[#0F3D5E]/90 hover:shadow-lg transition uppercase tracking-wider">
+          Submit
+        </button>
       </div>
-    </form>
+    </div>
   );
 }
-
 const NOTIFS = [
   "BIS Quality Control Order for Hand Tools (Pipe Wrenches – General Purpose)",
   "QCO for Stainless Steel Cookware & Utensils — New Compliance Notification",
