@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
 import { HeadContent, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import logoImg from "@/assets/logo.png";
 
 // 🔴 This special query tells the bundler to load the CSS stylesheet as a URL string asset
 import appCss from '../styles.css?url'
@@ -32,12 +33,12 @@ function RootComponent() {
           
          <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-90">
   <img 
-    src="https://2.wlimg.com/company_logo/14578309.jpg" 
-    alt="Company Logo" 
-    /* 🔴 Upped contrast/brightness and added saturate to keep the logo dark blue */
-    className="h-12 w-auto object-contain max-w-[200px] contrast-[2] brightness-[1.15] saturate-[1.5] mix-blend-multiply"
-    loading="eager"
-  />
+  src={logoImg} 
+  alt="CS Consultancy Services Logo" 
+  /* ⚡ Cleaned layout sizing to let your local asset shine naturally */
+  className="h-14 w-auto object-contain max-w-[220px]"
+  loading="eager"
+/>
 </Link>
 
           {/* Navigation Items */}
