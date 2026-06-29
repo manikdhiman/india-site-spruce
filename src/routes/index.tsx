@@ -394,32 +394,38 @@ function StatCard({ s, start, delay }: { s: typeof STATS[0]; start: boolean; del
 function Achievements() {
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState(false);
+  
   useEffect(() => {
     if (!ref.current) return;
     const io = new IntersectionObserver(([e]) => e.isIntersecting && setStart(true), { threshold: 0.3 });
     io.observe(ref.current);
     return () => io.disconnect();
   }, []);
+
   return (
-    <section ref={ref} className="py-16 md:py-20 bg-brand-deep text-white relative overflow-hidden">
-      <div className="absolute -top-20 left-1/4 h-72 w-72 rounded-full bg-brand-cyan/20 blur-3xl animate-blob" />
-      <div className="absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-primary/40 blur-3xl animate-blob-2" />
+    // 🎨 Fixed: Swapped bg-brand-deep out for your explicit Navy Blue (#0F3D5E)
+    <section ref={ref} className="py-16 md:py-20 bg-[#0F3D5E] text-white relative overflow-hidden">
+      {/* Updated moving background ambient blobs to match the clean blue theme */}
+      <div className="absolute -top-20 left-1/4 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl animate-blob" />
+      <div className="absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-sky-600/20 blur-3xl animate-blob-2" />
+      
       <div className="container mx-auto px-4 relative">
         <div className="text-center mb-12 reveal">
-          <div className="text-brand-cyan font-semibold uppercase text-sm tracking-wider">Our Achievements</div>
+          {/* 🎨 Fixed: Changed text-brand-cyan to text-sky-300 for professional contrast */}
+          <div className="text-sky-300 font-semibold uppercase text-sm tracking-wider">Our Achievements</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2">Trusted Across Industries</h2>
           <p className="mt-4 max-w-3xl mx-auto text-white/80">
             Delivering trusted BIS, EPR, and regulatory compliance solutions with proven expertise.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Keeps your exact original map loop and counter animation triggers intact! */}
           {STATS.map((s, i) => <StatCard key={s.label} s={s} start={start} delay={i * 100} />)}
         </div>
       </div>
     </section>
   );
 }
-
 const REVIEWS = [
   { name: "Malvika", body: "The team guided us through the entire certification process with exceptional professionalism and expertise. Their timely support and attention to detail made compliance simple, efficient, and completely stress-free for our business." },
   { name: "Suyansh", body: "We were impressed by their deep regulatory knowledge and commitment to delivering results. The registration process was handled seamlessly, allowing us to focus on our operations with complete confidence." },
