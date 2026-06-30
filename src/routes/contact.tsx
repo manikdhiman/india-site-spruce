@@ -4,9 +4,9 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
 import { createServerFn } from "@tanstack/react-start";
 import { sendInquiryEmail } from "@/components/sendEmail";
-import { supabase } from "@/lib/supabaseClient"; // ⚡ Absolute import ensures backend access to .env context
+import { supabase } from "@/lib/supabaseClient"; 
 
-// Define a secure execution endpoint right here
+// Secure server function that handles both database insertion and email tracking
 const triggerEmailSubmit = createServerFn({ method: "POST" })
   .validator((data: any) => data)
   .handler(async ({ data }) => {
@@ -14,7 +14,7 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
     let emailSuccess = false;
     let errorLog = "";
 
-    // 1. Try Database Insert safely on the server side
+    // 1. Write the payload securely to your Supabase cloud table
     try {
       const { error } = await supabase
         .from("quotes")
@@ -30,7 +30,7 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
         ]);
 
       if (error) {
-        console.error("Supabase Database Insertion Error:", error.message);
+        console.error("Supabase Database Error:", error.message);
         dbSuccess = false;
         errorLog = error.message;
       }
@@ -40,7 +40,7 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
       errorLog = dbErr.message || "Database connection error";
     }
 
-    // 2. Try Email Delivery safely on the server side
+    // 2. Deliver email notification via Resend
     try {
       const emailResponse = await sendInquiryEmail(data);
       if (emailResponse && emailResponse.success) {
@@ -53,7 +53,6 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
       errorLog = emailErr.message || "Email service crashed";
     }
 
-    // Return status cleanly back to the client side browser context
     if (dbSuccess || emailSuccess) {
       return { success: true, error: null };
     } else {
@@ -182,14 +181,15 @@ function ContactPage() {
             ) : (
               <>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
-                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile No." className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
-                  <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile No." data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
                 </div>
-                <select required value={service} onChange={(e) => setService(e.target.value)} className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background text-foreground">
+                
+                <select required value={service} onChange={(e) => setService(e.target.value)} data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background text-foreground">
                   <option value="">Service of interest</option>
                   <option value="BIS Registration">BIS Registration</option>
                   <option value="FMCS Certification">FMCS Certification</option>
@@ -199,7 +199,7 @@ function ContactPage() {
                   <option value="LMPC">LMPC</option>
                   <option value="STQC / Other">STQC / Other</option>
                 </select>
-                {/* 🛠️ Added protection tags here to isolate QuillBot's script extensions */}
+
                 <textarea 
                   required 
                   rows={5} 
