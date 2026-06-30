@@ -4,21 +4,25 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
 import { createServerFn } from "@tanstack/react-start";
 import { sendInquiryEmail } from "@/components/sendEmail";
-import { supabase } from "@/lib/supabaseClient"; // ⚡ Connected client
+import { supabase } from "@/lib/supabaseClient"; // Combined cleanly under path alias
 
 // Define a secure execution endpoint right here
 const triggerEmailSubmit = createServerFn({ method: "POST" })
   .validator((data: any) => data)
   .handler(async ({ data }) => {
+    let dbSuccess = true;
+    let emailSuccess = false;
+    let errorLog = "";
+
+    // 1. Try Database Insert safely on the server side
     try {
-      // 📊 1. Insert the quote data securely into the Supabase database
       const { error } = await supabase
         .from("quotes")
         .insert([
           {
             name: data.name,
             email: data.email,
-            mobile: data.phone, // Maps 'phone' state parameter to your database column 'mobile'
+            mobile: data.phone, // Maps phone client parameter into your 'mobile' column
             company: data.company,
             service: data.service,
             message: data.message
@@ -26,15 +30,35 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
         ]);
 
       if (error) {
-        console.error("Supabase server insert failed:", error);
-        // We continue anyway so email delivery runs even if DB logging stumbles
+        console.error("Supabase Database Insertion Error:", error.message);
+        dbSuccess = false;
+        errorLog = error.message;
       }
-    } catch (dbErr) {
-      console.error("Database connection catch block triggered:", dbErr);
+    } catch (dbErr: any) {
+      console.error("Database connection dropped completely:", dbErr);
+      dbSuccess = false;
+      errorLog = dbErr.message || "Database connection error";
     }
 
-    // 📧 2. Continues with your existing Resend email delivery context
-    return await sendInquiryEmail(data);
+    // 2. Try Email Delivery safely on the server side
+    try {
+      const emailResponse = await sendInquiryEmail(data);
+      if (emailResponse && emailResponse.success) {
+        emailSuccess = true;
+      } else {
+        errorLog = emailResponse?.error || "Email delivery rejected by provider";
+      }
+    } catch (emailErr: any) {
+      console.error("Resend Email Service crashed:", emailErr);
+      errorLog = emailErr.message || "Email service crashed";
+    }
+
+    // Return status cleanly back to the client side browser context
+    if (dbSuccess || emailSuccess) {
+      return { success: true, error: null };
+    } else {
+      return { success: false, error: errorLog || "Failed to process request" };
+    }
   });
 
 export const Route = createFileRoute("/contact")({
@@ -67,14 +91,14 @@ function ContactPage() {
     setErrorMsg("");
 
     try {
-      // Execute the local server function safely
+      // Execute the server function safely
       const response = await triggerEmailSubmit({
         data: { name, email, phone, company, service, message }
       });
 
       if (response.success) {
         setSubmitted(true);
-        // Clear all inputs upon successful validation completion
+        // Clear inputs completely
         setName("");
         setEmail("");
         setPhone("");
