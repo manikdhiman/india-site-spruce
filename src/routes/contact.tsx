@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
 import { createServerFn } from "@tanstack/react-start";
 import { sendInquiryEmail } from "@/components/sendEmail";
-import { supabase } from "@/lib/supabaseClient"; // Combined cleanly under path alias
+import { supabase } from "@/lib/supabaseClient"; // ⚡ Absolute import ensures backend access to .env context
 
 // Define a secure execution endpoint right here
 const triggerEmailSubmit = createServerFn({ method: "POST" })
@@ -22,7 +22,7 @@ const triggerEmailSubmit = createServerFn({ method: "POST" })
           {
             name: data.name,
             email: data.email,
-            mobile: data.phone, // Maps phone client parameter into your 'mobile' column
+            mobile: data.phone, 
             company: data.company,
             service: data.service,
             message: data.message
@@ -91,14 +91,12 @@ function ContactPage() {
     setErrorMsg("");
 
     try {
-      // Execute the server function safely
       const response = await triggerEmailSubmit({
         data: { name, email, phone, company, service, message }
       });
 
       if (response.success) {
         setSubmitted(true);
-        // Clear inputs completely
         setName("");
         setEmail("");
         setPhone("");
@@ -165,6 +163,7 @@ function ContactPage() {
 
           <form
             onSubmit={handleFormSubmit}
+            suppressHydrationWarning
             className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4 text-foreground"
           >
             <h2 className="text-2xl font-bold text-[#0F3D5E]">Request a Free Quote</h2>
@@ -200,7 +199,17 @@ function ContactPage() {
                   <option value="LMPC">LMPC</option>
                   <option value="STQC / Other">STQC / Other</option>
                 </select>
-                <textarea required rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell us about your product / requirement" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" />
+                {/* 🛠️ Added protection tags here to isolate QuillBot's script extensions */}
+                <textarea 
+                  required 
+                  rows={5} 
+                  value={message} 
+                  onChange={(e) => setMessage(e.target.value)} 
+                  placeholder="Tell us about your product / requirement" 
+                  data-gramm="false"
+                  data-quillbot="false"
+                  className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
+                />
                 <button disabled={isSubmitting} className="w-full rounded-md bg-[#0F3D5E] text-white py-3 font-semibold hover:bg-[#0F3D5E]/90 hover:shadow-lg transition disabled:opacity-50 tracking-wider uppercase">
                   {isSubmitting ? "SENDING..." : "SUBMIT ENQUIRY"}
                 </button>
