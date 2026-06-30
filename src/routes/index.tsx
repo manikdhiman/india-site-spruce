@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import heroMeeting from "@/assets/hero-meeting.jpg";
 import heroInspection from "@/assets/hero-inspection.jpg";
+import { supabase } from "../lib/supabaseClient"; 
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -178,38 +180,110 @@ function Hero() {
   );
 }
 
-// 🎨 Sub-component: Added here directly below Hero to solve the missing variable crash!
-function ContactCard() {
+
+export function ContactCard() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    message: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+    setSuccess(false);
+
+    if (!formData.name || !formData.email || !formData.mobile) {
+      setErrorMsg("Name, Email, and Mobile No. are required.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Pushes the data straight up to your Supabase cloud table!
+      const { error } = await supabase
+        .from("leads")
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            mobile: formData.mobile,
+            message: formData.message,
+          }
+        ]);
+
+      if (error) throw error;
+
+      setSuccess(true);
+      setFormData({ name: "", email: "", mobile: "", message: "" }); // Clears form on success!
+    } catch (err: any) {
+      console.error("Form error:", err);
+      setErrorMsg(err.message || "Failed to submit inquiry.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground">
       <h3 className="text-xl font-bold text-center tracking-tight text-[#0F3D5E] uppercase">
         Contact Us
       </h3>
-      <div className="space-y-3">
+
+      <form onSubmit={handleSubmit} className="space-y-3">
         <input 
           type="text" 
-          placeholder="Name" 
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Name *" 
           className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
         />
         <input 
           type="email" 
-          placeholder="Email" 
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Email *" 
           className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
         />
         <input 
           type="text" 
-          placeholder="Mobile No." 
+          name="mobile"
+          value={formData.mobile}
+          onChange={handleChange}
+          placeholder="Mobile No. *" 
           className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
         />
         <textarea 
           rows={3} 
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
           placeholder="Type Message" 
           className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
         />
-        <button className="w-full rounded-md bg-[#0F3D5E] text-white py-2.5 font-semibold text-sm hover:bg-[#0F3D5E]/90 hover:shadow-lg transition uppercase tracking-wider">
-          Submit
+
+        {errorMsg && <p className="text-xs text-red-500 font-medium text-center">{errorMsg}</p>}
+        {success && <p className="text-xs text-emerald-600 font-semibold text-center">Inquiry submitted successfully!</p>}
+
+        <button 
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-md bg-[#0F3D5E] text-white py-2.5 font-semibold text-sm hover:bg-[#0F3D5E]/90 hover:shadow-lg transition uppercase tracking-wider disabled:opacity-50"
+        >
+          {loading ? "Submitting..." : "Submit"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
