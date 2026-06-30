@@ -202,6 +202,7 @@ export function ContactCard() {
     setErrorMsg("");
     setSuccess(false);
 
+    // Form input validation
     if (!formData.name || !formData.email || !formData.mobile) {
       setErrorMsg("Name, Email, and Mobile No. are required.");
       setLoading(false);
@@ -234,7 +235,11 @@ export function ContactCard() {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground">
+    // ✨ suppressHydrationWarning added here to prevent browser extensions from throwing warnings
+    <div 
+      suppressHydrationWarning 
+      className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground"
+    >
       <h3 className="text-xl font-bold text-center tracking-tight text-[#0F3D5E] uppercase">
         Contact Us
       </h3>
@@ -286,8 +291,7 @@ export function ContactCard() {
       </form>
     </div>
   );
-}
-const NOTIFS = [
+}const NOTIFS = [
   "BIS Quality Control Order for Hand Tools (Pipe Wrenches – General Purpose)",
   "QCO for Stainless Steel Cookware & Utensils — New Compliance Notification",
   "BIS Registration for Toys mandatory — Updated IS Standards",
