@@ -166,9 +166,12 @@ function ContactPage() {
             </div>
           </div>
 
-          {/* 🛠️ Dynamic mounting shield */}
+          {/* 🛡️ Complete UI Mounting Shield wrapper */}
           {!isMounted ? (
-            <div className="rounded-xl border border-border bg-card p-7 md:p-9 h-[500px] animate-pulse max-w-2xl w-full" />
+            <div className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4 w-full h-[550px] flex flex-col justify-center items-center">
+              <div className="w-10 h-10 border-4 border-[#0F3D5E] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm text-muted-foreground">Loading request form safely...</p>
+            </div>
           ) : (
             <form
               onSubmit={handleFormSubmit}
@@ -230,4 +233,3 @@ function ContactPage() {
       </section>
     </>
   );
-}
