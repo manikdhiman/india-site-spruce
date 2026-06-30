@@ -10,7 +10,6 @@ import heroMeeting from "@/assets/hero-meeting.jpg";
 import heroInspection from "@/assets/hero-inspection.jpg";
 import { supabase } from "../lib/supabaseClient"; 
 
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -93,10 +92,8 @@ function Home() {
   );
 }
 
+// ---------- Sub-components ----------
 
-
-
-// ⚡ Main Hero Component Function
 function Hero() {
   const [slide, setSlide] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -113,12 +110,9 @@ function Hero() {
 
   return (
     <section className="relative bg-[#0F3D5E] text-white overflow-hidden">
-      
-      {/* Moving ambient blobs updated to matching blue tones */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-400/20 blur-3xl animate-blob" />
       <div className="absolute -bottom-32 right-10 h-[28rem] w-[28rem] rounded-full bg-sky-600/20 blur-3xl animate-blob-2" />
 
-      {/* Slide images crossfade + ken-burns */}
       {SLIDES.map((sl, i) => (
         <img
           key={i}
@@ -128,12 +122,10 @@ function Hero() {
         />
       ))}
       
-      {/* Changed the gradient backdrop overlay from purple to your authentic Navy Blue gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0F3D5E] via-[#0F3D5E]/90 to-transparent" />
 
       <div className="relative container mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
         <div key={slide} className="reveal in-view">
-          {/* Accent text changed to high-contrast sky blue */}
           <div className="text-sky-300 font-semibold tracking-wide uppercase text-sm mb-3">{s.eyebrow}</div>
           <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-2xl">{s.title}</h1>
           <ul className="mt-6 space-y-2 text-lg">
@@ -167,27 +159,19 @@ function Hero() {
             </button>
           </div>
 
-          {/* Progress bar tracking engine updated to matching sky blue */}
           <div className="mt-4 h-0.5 w-44 bg-white/20 rounded overflow-hidden">
             {playing && <div key={slide} className="h-full bg-sky-400 animate-progress" />}
           </div>
         </div>
         
-        {/* ⚡ Renders the Contact Card form safely right here inside the layout flexbox */}
         <ContactCard />
       </div>
     </section>
   );
 }
 
-
 export function ContactCard() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    message: ""
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", mobile: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -202,7 +186,6 @@ export function ContactCard() {
     setErrorMsg("");
     setSuccess(false);
 
-    // Form input validation
     if (!formData.name || !formData.email || !formData.mobile) {
       setErrorMsg("Name, Email, and Mobile No. are required.");
       setLoading(false);
@@ -210,22 +193,13 @@ export function ContactCard() {
     }
 
     try {
-      // Pushes the data straight up to your Supabase cloud table!
       const { error } = await supabase
         .from("leads")
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            mobile: formData.mobile,
-            message: formData.message,
-          }
-        ]);
+        .insert([{ name: formData.name, email: formData.email, mobile: formData.mobile, message: formData.message }]);
 
       if (error) throw error;
-
       setSuccess(true);
-      setFormData({ name: "", email: "", mobile: "", message: "" }); // Clears form on success!
+      setFormData({ name: "", email: "", mobile: "", message: "" });
     } catch (err: any) {
       console.error("Form error:", err);
       setErrorMsg(err.message || "Failed to submit inquiry.");
@@ -235,63 +209,24 @@ export function ContactCard() {
   };
 
   return (
-    // ✨ suppressHydrationWarning added here to prevent browser extensions from throwing warnings
-    <div 
-      suppressHydrationWarning 
-      className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground"
-    >
-      <h3 className="text-xl font-bold text-center tracking-tight text-[#0F3D5E] uppercase">
-        Contact Us
-      </h3>
-
+    <div suppressHydrationWarning className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-2xl space-y-4 max-w-md w-full justify-self-center lg:justify-self-end text-foreground">
+      <h3 className="text-xl font-bold text-center tracking-tight text-[#0F3D5E] uppercase">Contact Us</h3>
       <form onSubmit={handleSubmit} className="space-y-3">
-        <input 
-          type="text" 
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Name *" 
-          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
-        />
-        <input 
-          type="email" 
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email *" 
-          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
-        />
-        <input 
-          type="text" 
-          name="mobile"
-          value={formData.mobile}
-          onChange={handleChange}
-          placeholder="Mobile No. *" 
-          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" 
-        />
-        <textarea 
-          rows={3} 
-          name="message"
-          value={formData.message}
-          onChange={handleChange}
-          placeholder="Type Message" 
-          className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
-        />
-
+        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Name *" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email *" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+        <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile No. *" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+        <textarea rows={3} name="message" value={formData.message} onChange={handleChange} placeholder="Type Message" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" />
         {errorMsg && <p className="text-xs text-red-500 font-medium text-center">{errorMsg}</p>}
         {success && <p className="text-xs text-emerald-600 font-semibold text-center">Inquiry submitted successfully!</p>}
-
-        <button 
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-[#0F3D5E] text-white py-2.5 font-semibold text-sm hover:bg-[#0F3D5E]/90 hover:shadow-lg transition uppercase tracking-wider disabled:opacity-50"
-        >
+        <button type="submit" disabled={loading} className="w-full rounded-md bg-[#0F3D5E] text-white py-2.5 font-semibold text-sm hover:bg-[#0F3D5E]/90 hover:shadow-lg transition uppercase tracking-wider disabled:opacity-50">
           {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
   );
-}const NOTIFS = [
+}
+
+const NOTIFS = [
   "BIS Quality Control Order for Hand Tools (Pipe Wrenches – General Purpose)",
   "QCO for Stainless Steel Cookware & Utensils — New Compliance Notification",
   "BIS Registration for Toys mandatory — Updated IS Standards",
@@ -306,13 +241,15 @@ function NotificationTicker() {
   return (
     <div className="bg-accent border-y border-border pause-on-hover">
       <div className="container mx-auto px-4 py-2.5 flex items-center gap-4">
-        <span className="shrink-0 inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-bold uppercase px-3 py-1.5 rounded">
+        {/* ⚡ Swapped bg-primary to bg-[#0F3D5E] */}
+        <span className="shrink-0 inline-flex items-center gap-1.5 bg-[#0F3D5E] text-white text-xs font-bold uppercase px-3 py-1.5 rounded">
           <Radio className="h-3.5 w-3.5 animate-pulse" /> Latest Notification
         </span>
         <div className="overflow-hidden flex-1">
           <div className="flex gap-10 animate-ticker whitespace-nowrap text-sm text-foreground">
             {[...NOTIFS, ...NOTIFS].map((n, i) => (
-              <a key={i} href="#" className="hover:text-primary">• {n}</a>
+              /* ⚡ Swapped hover:text-primary to hover:text-[#0F3D5E] */
+              <a key={i} href="#" className="hover:text-[#0F3D5E]">• {n}</a>
             ))}
           </div>
         </div>
@@ -323,31 +260,38 @@ function NotificationTicker() {
 
 function AboutSection() {
   return (
-    <section id="about" className="py-16 md:py-20 bg-background">
+    <section id="about" className="py-16 md:py-20 bg-background text-foreground">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 reveal">
-          <div className="text-secondary font-semibold uppercase text-sm tracking-wider">About Us</div>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">BIS Consultancy Services Expertise</h2>
+          {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+          <div className="text-[#0F3D5E] font-bold uppercase text-sm tracking-wider">About Us</div>
+          {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-[#0F3D5E]">BIS Consultancy Services Expertise</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
             BIS Consultancy Services Expertise provides professional guidance for certification, compliance, testing, and regulatory approvals, helping businesses achieve quality standards and market readiness.
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-primary/40">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-secondary uppercase tracking-wider"><ShieldCheck className="h-4 w-4" /> Trusted Expertise</div>
+          {/* ⚡ Swapped border highlights to use your hex code token */}
+          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-[#0F3D5E]/40">
+            {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-[#0F3D5E] uppercase tracking-wider"><ShieldCheck className="h-4 w-4" /> Trusted Expertise</div>
             <h3 className="text-xl font-bold mt-2">End-to-End Certification Services</h3>
             <p className="mt-3 text-muted-foreground">
               BIS Consultancy Services is a trusted provider of certification and regulatory compliance solutions, helping manufacturers and importers navigate complex approval processes with confidence. Our team offers comprehensive single-window services for product certification, testing, training, and compliance management.
             </p>
-            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
+            {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-[#0F3D5E] font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
           </div>
-          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-primary/40" style={{ animationDelay: "120ms" }}>
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-secondary uppercase tracking-wider"><Award className="h-4 w-4" /> BIS Consultancy</div>
+          <div className="reveal rounded-xl border border-border bg-card p-7 shadow-sm card-lift hover:shadow-xl hover:border-[#0F3D5E]/40" style={{ animationDelay: "120ms" }}>
+            {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-[#0F3D5E] uppercase tracking-wider"><Award className="h-4 w-4" /> BIS Consultancy</div>
             <h3 className="text-xl font-bold mt-2">Certification & Compliance Excellence</h3>
             <p className="mt-3 text-muted-foreground">
               We deliver comprehensive support for certification, testing, compliance, and regulatory approvals. Our experienced professionals help businesses navigate complex standards with ease — ensuring products meet quality, safety, and regulatory benchmarks with a client-focused approach.
             </p>
-            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-primary font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
+            {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+            <a href="#services" className="mt-4 inline-flex items-center gap-1 text-[#0F3D5E] font-semibold group">Read More <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition" /></a>
           </div>
         </div>
       </div>
@@ -363,20 +307,24 @@ const WHY = [
 
 function WhyChoose() {
   return (
-    <section className="py-16 md:py-20 bg-muted relative overflow-hidden">
-      <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-blob" />
+    <section className="py-16 md:py-20 bg-muted relative overflow-hidden text-foreground">
+      {/* ⚡ Updated backdrop bubble accents */}
+      <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-[#0F3D5E]/5 blur-3xl animate-blob" />
       <div className="container mx-auto px-4 relative">
         <div className="text-center mb-12 reveal">
-          <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Why Choose Us</div>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Why Choose BIS Consultancy Services?</h2>
+          {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+          <div className="text-[#0F3D5E] font-bold uppercase text-sm tracking-wider">Why Choose Us</div>
+          {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-[#0F3D5E]">Why Choose BIS Consultancy Services?</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
             With extensive experience in certification, testing, and regulatory compliance, we help businesses navigate complex approval processes with confidence.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
+          {/* ⚡ Swapped inner icon cards to corporate blue theme layers */}
           {WHY.map((w, i) => (
-            <div key={w.title} className="reveal bg-card rounded-xl p-7 border border-border card-lift hover:border-primary/40 hover:shadow-xl" style={{ animationDelay: `${i * 120}ms` }}>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary grid place-items-center group-hover:rotate-6 transition"><w.icon className="h-6 w-6" /></div>
+            <div key={w.title} className="reveal bg-card rounded-xl p-7 border border-border card-lift hover:border-[#0F3D5E]/40 hover:shadow-xl" style={{ animationDelay: `${i * 120}ms` }}>
+              <div className="h-12 w-12 rounded-lg bg-[#0F3D5E]/10 text-[#0F3D5E] grid place-items-center group-hover:rotate-6 transition"><w.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 text-lg font-bold">{w.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{w.body}</p>
             </div>
@@ -421,29 +369,34 @@ function ServicesSection() {
   const keys = Object.keys(TABS) as TabKey[];
   const [active, setActive] = useState<TabKey>(keys[0]);
   return (
-    <section id="services" className="py-16 md:py-20 bg-background">
+    <section id="services" className="py-16 md:py-20 bg-background text-foreground">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10 reveal">
-          <div className="text-secondary font-semibold uppercase text-sm tracking-wider">What We Offer</div>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Our Services</h2>
+          {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+          <div className="text-[#0F3D5E] font-bold uppercase text-sm tracking-wider">What We Offer</div>
+          {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-[#0F3D5E]">Our Services</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
             End-to-end certification and regulatory compliance solutions tailored to your business needs.
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {keys.map((k) => (
-            <button key={k} onClick={() => setActive(k)} className={`px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${active === k ? "bg-primary text-primary-foreground shadow-lg scale-105" : "bg-muted text-foreground hover:bg-accent hover:scale-105"}`}>
+            /* ⚡ Swapped button tab colors to your corporate primary deep blue style */
+            <button key={k} onClick={() => setActive(k)} className={`px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${active === k ? "bg-[#0F3D5E] text-white shadow-lg scale-105" : "bg-muted text-foreground hover:bg-accent hover:scale-105"}`}>
               {k}
             </button>
           ))}
         </div>
         <div key={active} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TABS[active].map((srv, i) => (
-            <div key={srv.name} className="reveal in-view group rounded-xl border border-border bg-card p-6 card-lift hover:border-primary hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-brand-cyan text-primary-foreground grid place-items-center group-hover:rotate-6 group-hover:scale-110 transition-transform"><srv.icon className="h-6 w-6" /></div>
+            <div key={srv.name} className="reveal in-view group rounded-xl border border-border bg-card p-6 card-lift hover:border-[#0F3D5E] hover:shadow-xl" style={{ animationDelay: `${i * 60}ms` }}>
+              {/* ⚡ Updated icon boxes to clean matching navy blue gradient meshes instead of purples */}
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#0F3D5E] to-sky-500 text-white grid place-items-center group-hover:rotate-6 group-hover:scale-110 transition-transform"><srv.icon className="h-6 w-6" /></div>
               <h3 className="mt-4 font-bold text-base">{srv.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{srv.desc}</p>
-              <Link to="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></Link>
+              {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+              <Link to="/contact" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#0F3D5E] group/cta">Learn more <ChevronRight className="h-4 w-4 group-hover/cta:translate-x-1 transition" /></Link>
             </div>
           ))}
         </div>
@@ -462,9 +415,10 @@ const STATS = [
 function StatCard({ s, start, delay }: { s: typeof STATS[0]; start: boolean; delay: number }) {
   const val = useCountUp(s.n, start);
   return (
-    <div className="reveal text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur card-lift hover:bg-white/10 hover:border-brand-cyan/50" style={{ animationDelay: `${delay}ms` }}>
-      <div className="text-4xl md:text-5xl font-bold text-brand-cyan tabular-nums">{val.toLocaleString()}{s.suffix}</div>
-      <div className="mt-2 text-sm uppercase tracking-wider text-white/80">{s.label}</div>
+    <div className="reveal text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur card-lift hover:bg-white/10 hover:border-sky-400/50" style={{ animationDelay: `${delay}ms` }}>
+      {/* ⚡ Changed colors from brand-cyan to high-contrast clear white and sky tones */}
+      <div className="text-4xl md:text-5xl font-bold text-white tabular-nums">{val.toLocaleString()}{s.suffix}</div>
+      <div className="mt-2 text-sm uppercase tracking-wider text-sky-200">{s.label}</div>
     </div>
   );
 }
@@ -481,15 +435,12 @@ function Achievements() {
   }, []);
 
   return (
-    // 🎨 Fixed: Swapped bg-brand-deep out for your explicit Navy Blue (#0F3D5E)
     <section ref={ref} className="py-16 md:py-20 bg-[#0F3D5E] text-white relative overflow-hidden">
-      {/* Updated moving background ambient blobs to match the clean blue theme */}
       <div className="absolute -top-20 left-1/4 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl animate-blob" />
       <div className="absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-sky-600/20 blur-3xl animate-blob-2" />
       
       <div className="container mx-auto px-4 relative">
         <div className="text-center mb-12 reveal">
-          {/* 🎨 Fixed: Changed text-brand-cyan to text-sky-300 for professional contrast */}
           <div className="text-sky-300 font-semibold uppercase text-sm tracking-wider">Our Achievements</div>
           <h2 className="text-3xl md:text-4xl font-bold mt-2">Trusted Across Industries</h2>
           <p className="mt-4 max-w-3xl mx-auto text-white/80">
@@ -497,13 +448,13 @@ function Achievements() {
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {/* Keeps your exact original map loop and counter animation triggers intact! */}
           {STATS.map((s, i) => <StatCard key={s.label} s={s} start={start} delay={i * 100} />)}
         </div>
       </div>
     </section>
   );
 }
+
 const REVIEWS = [
   { name: "Malvika", body: "The team guided us through the entire certification process with exceptional professionalism and expertise. Their timely support and attention to detail made compliance simple, efficient, and completely stress-free for our business." },
   { name: "Suyansh", body: "We were impressed by their deep regulatory knowledge and commitment to delivering results. The registration process was handled seamlessly, allowing us to focus on our operations with complete confidence." },
@@ -518,11 +469,13 @@ function Testimonials() {
     return () => clearInterval(id);
   }, []);
   return (
-    <section className="py-16 md:py-20 bg-muted overflow-hidden">
+    <section className="py-16 md:py-20 bg-muted overflow-hidden text-foreground">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 reveal">
-          <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Testimonials</div>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-primary">Stories of Satisfaction</h2>
+          {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+          <div className="text-[#0F3D5E] font-bold uppercase text-sm tracking-wider">Testimonials</div>
+          {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 text-[#0F3D5E]">Stories of Satisfaction</h2>
           <p className="mt-4 max-w-3xl mx-auto text-muted-foreground">
             Built on transparency, expertise, and consistent performance.
           </p>
@@ -533,10 +486,12 @@ function Testimonials() {
               {REVIEWS.map((r) => (
                 <blockquote key={r.name} className="w-full shrink-0 px-2">
                   <div className="bg-card rounded-xl p-8 md:p-10 border border-border shadow-lg mx-auto max-w-3xl">
-                    <div className="text-5xl text-primary leading-none">"</div>
+                    {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+                    <div className="text-5xl text-[#0F3D5E] leading-none">"</div>
                     <p className="text-foreground italic text-lg">{r.body}</p>
                     <footer className="mt-5 flex items-center gap-3">
-                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary to-brand-cyan text-white grid place-items-center font-bold">{r.name[0]}</div>
+                      {/* ⚡ Updated avatar gradients to your brand deep blue match blocks */}
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-[#0F3D5E] to-sky-500 text-white grid place-items-center font-bold">{r.name[0]}</div>
                       <div className="font-semibold">{r.name}</div>
                     </footer>
                   </div>
@@ -546,7 +501,8 @@ function Testimonials() {
           </div>
           <div className="mt-6 flex justify-center gap-2">
             {REVIEWS.map((_, i) => (
-              <button key={i} onClick={() => setIdx(i)} aria-label={`Testimonial ${i + 1}`} className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/70"}`} />
+              /* ⚡ Swapped bg-primary to bg-[#0F3D5E] */
+              <button key={i} onClick={() => setIdx(i)} aria-label={`Testimonial ${i + 1}`} className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-[#0F3D5E]" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/70"}`} />
             ))}
           </div>
         </div>
@@ -558,18 +514,21 @@ function Testimonials() {
 function Partners() {
   const partners = ["SD Metals", "Flatkick", "Star Kidz", "Aygo", "TrueLite", "Shufab", "Acme Ltd", "GreenTech"];
   return (
-    <section className="py-14 bg-background border-y border-border pause-on-hover">
+    <section className="py-14 bg-background border-y border-border pause-on-hover text-foreground">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8 reveal">
-          <div className="text-secondary font-semibold uppercase text-sm tracking-wider">Trusted By</div>
-          <h2 className="text-2xl md:text-3xl font-bold mt-2 text-primary">Our Partners</h2>
+          {/* ⚡ Swapped text-secondary to text-[#0F3D5E] */}
+          <div className="text-[#0F3D5E] font-bold uppercase text-sm tracking-wider">Trusted By</div>
+          {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+          <h2 className="text-2xl md:text-3xl font-bold mt-2 text-[#0F3D5E]">Our Partners</h2>
         </div>
         <div className="overflow-hidden relative">
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           <div className="flex gap-10 animate-ticker-slow whitespace-nowrap">
             {[...partners, ...partners].map((p, i) => (
-              <div key={i} className="shrink-0 h-20 w-44 rounded-lg border border-border bg-muted grid place-items-center font-bold text-muted-foreground hover:bg-card hover:text-primary hover:border-primary/40 transition">{p}</div>
+              /* ⚡ Swapped hover effects to match brand colors */
+              <div key={i} className="shrink-0 h-20 w-44 rounded-lg border border-border bg-muted grid place-items-center font-bold text-muted-foreground hover:bg-card hover:text-[#0F3D5E] hover:border-[#0F3D5E]/40 transition">{p}</div>
             ))}
           </div>
         </div>
@@ -580,7 +539,8 @@ function Partners() {
 
 function CTA() {
   return (
-    <section className="py-16 bg-gradient-to-r from-primary to-brand-cyan text-primary-foreground relative overflow-hidden">
+    /* ⚡ Updated CTA background from primary mix to your distinct professional brand blue gradient */
+    <section className="py-16 bg-gradient-to-r from-[#0F3D5E] to-sky-700 text-white relative overflow-hidden">
       <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-white/10 blur-3xl animate-blob" />
       <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl animate-blob-2" />
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 relative">
@@ -590,9 +550,9 @@ function CTA() {
             From BIS and EPR registrations to specialized certification services — take the next step toward business excellence with confidence.
           </p>
         </div>
-        <Link to="/contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-primary px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</Link>
+        {/* ⚡ Swapped text-primary to text-[#0F3D5E] */}
+        <Link to="/contact" className="reveal shrink-0 inline-flex items-center rounded-md bg-white text-[#0F3D5E] px-6 py-3 font-semibold hover:bg-white/90 hover:scale-105 hover:shadow-2xl transition">Get Expert Assistance</Link>
       </div>
     </section>
   );
 }
-

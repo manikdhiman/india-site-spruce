@@ -7,15 +7,11 @@ export default defineConfig({
       entry: "server",
     },
   },
-  // ⚡ Explicitly intercept the Rolldown/Vite compilation layer for both client and server bundlers
+  // ✨ Cleaned configuration layer allows Vite/Rolldown to inline server dependencies correctly
   vite: {
     ssr: {
-      external: ["resend"],
-    },
-    build: {
-      rollupOptions: {
-        external: ["resend"],
-      },
+      // Avoid making 'resend' completely external on server bundles
+      noExternal: ["resend", "lucide-react"],
     },
   },
 });
