@@ -46,31 +46,32 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.25 0.06 260);
   
-  /* 🎨 Primary Brand Color: Updated to Premium Navy Blue (#0F3D5E) */
+  /* 🎨 Primary Brand Color: Premium Navy Blue (#0F3D5E) */
   --primary: oklch(0.33 0.08 244.5);
   --primary-foreground: oklch(0.99 0 0);
   
-  /* 🎨 Secondary & Accent: Pastel Blue/Purple blend from the top of your image */
-  --secondary: oklch(0.72 0.13 275);
+  /* ⚡ FIXED: Aligned Secondary color variant to match your Premium Navy Blue (#0F3D5E) */
+  --secondary: oklch(0.33 0.08 244.5);
   --secondary-foreground: oklch(0.99 0 0);
   
   --muted: oklch(0.94 0.03 270);
   --muted-foreground: oklch(0.45 0.06 270);
   
-  --accent: oklch(0.91 0.05 280);
-  --accent-foreground: oklch(0.55 0.2 300);
+  /* ⚡ FIXED: Shifted Accent color block completely away from purples to a clean sky-tinted layout base */
+  --accent: oklch(0.94 0.02 240);
+  --accent-foreground: oklch(0.33 0.08 244.5);
   
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
   
-  /* Clean subtle lavender borders instead of stark gray */
-  --border: oklch(0.9 0.02 280);
-  --input: oklch(0.9 0.02 280);
+  /* Clean matching light blue-gray borders instead of lavender */
+  --border: oklch(0.92 0.01 240);
+  --input: oklch(0.92 0.01 240);
   
-  /* Special branding system variables mapped to your image colors */
+  /* Branding variables synchronized with clean navy/sky palettes */
   --ring: oklch(0.33 0.08 244.5);
-  --topbar: oklch(0.72 0.13 275);
-  --brand-deep: oklch(0.48 0.19 295);
+  --topbar: oklch(0.33 0.08 244.5);
+  --brand-deep: oklch(0.33 0.08 244.5);
   --brand-cyan: oklch(0.78 0.1 240);
 }
 
