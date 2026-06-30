@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { PageHeader } from "@/components/site-layout";
 import { createServerFn } from "@tanstack/react-start";
@@ -73,6 +73,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
+  const [isMounted, setIsMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -83,6 +84,11 @@ function ContactPage() {
   const [company, setCompany] = useState("");
   const [service, setService] = useState("");
   const [message, setMessage] = useState("");
+
+  // ⚡ This completely forces React to bypass server-side layout comparison for the inputs
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,62 +166,66 @@ function ContactPage() {
             </div>
           </div>
 
-          <form
-            onSubmit={handleFormSubmit}
-            suppressHydrationWarning
-            className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4 text-foreground"
-          >
-            <h2 className="text-2xl font-bold text-[#0F3D5E]">Request a Free Quote</h2>
-            <p className="text-sm text-muted-foreground">Share a few details and our team will reach out within one business day.</p>
-            
-            {errorMsg && (
-              <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive text-center">
-                {errorMsg}
-              </div>
-            )}
-
-            {submitted ? (
-              <div className="rounded-md bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 text-center font-medium">
-                Thanks! Your enquiry has been received. We'll be in touch shortly.
-              </div>
-            ) : (
-              <>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
-                  <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+          {/* 🛠️ Dynamic mounting shield */}
+          {!isMounted ? (
+            <div className="rounded-xl border border-border bg-card p-7 md:p-9 h-[500px] animate-pulse max-w-2xl w-full" />
+          ) : (
+            <form
+              onSubmit={handleFormSubmit}
+              className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4 text-foreground"
+            >
+              <h2 className="text-2xl font-bold text-[#0F3D5E]">Request a Free Quote</h2>
+              <p className="text-sm text-muted-foreground">Share a few details and our team will reach out within one business day.</p>
+              
+              {errorMsg && (
+                <div className="rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive text-center">
+                  {errorMsg}
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile No." data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
-                  <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
-                </div>
-                
-                <select required value={service} onChange={(e) => setService(e.target.value)} data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background text-foreground">
-                  <option value="">Service of interest</option>
-                  <option value="BIS Registration">BIS Registration</option>
-                  <option value="FMCS Certification">FMCS Certification</option>
-                  <option value="EPR Compliance">EPR Compliance</option>
-                  <option value="FSSAI">FSSAI</option>
-                  <option value="WPC Approval">WPC Approval</option>
-                  <option value="LMPC">LMPC</option>
-                  <option value="STQC / Other">STQC / Other</option>
-                </select>
+              )}
 
-                <textarea 
-                  required 
-                  rows={5} 
-                  value={message} 
-                  onChange={(e) => setMessage(e.target.value)} 
-                  placeholder="Tell us about your product / requirement" 
-                  data-gramm="false"
-                  data-quillbot="false"
-                  className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
-                />
-                <button disabled={isSubmitting} className="w-full rounded-md bg-[#0F3D5E] text-white py-3 font-semibold hover:bg-[#0F3D5E]/90 hover:shadow-lg transition disabled:opacity-50 tracking-wider uppercase">
-                  {isSubmitting ? "SENDING..." : "SUBMIT ENQUIRY"}
-                </button>
-              </>
-            )}
-          </form>
+              {submitted ? (
+                <div className="rounded-md bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800 text-center font-medium">
+                  Thanks! Your enquiry has been received. We'll be in touch shortly.
+                </div>
+              ) : (
+                <>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                    <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile No." data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                    <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background" />
+                  </div>
+                  
+                  <select required value={service} onChange={(e) => setService(e.target.value)} data-gramm="false" data-quillbot="false" className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background text-foreground">
+                    <option value="">Service of interest</option>
+                    <option value="BIS Registration">BIS Registration</option>
+                    <option value="FMCS Certification">FMCS Certification</option>
+                    <option value="EPR Compliance">EPR Compliance</option>
+                    <option value="FSSAI">FSSAI</option>
+                    <option value="WPC Approval">WPC Approval</option>
+                    <option value="LMPC">LMPC</option>
+                    <option value="STQC / Other">STQC / Other</option>
+                  </select>
+
+                  <textarea 
+                    required 
+                    rows={5} 
+                    value={message} 
+                    onChange={(e) => setMessage(e.target.value)} 
+                    placeholder="Tell us about your product / requirement" 
+                    data-gramm="false"
+                    data-quillbot="false"
+                    className="w-full rounded-md border border-input px-3 py-2.5 text-sm outline-none focus:border-[#0F3D5E] focus:ring-2 focus:ring-[#0F3D5E]/20 transition bg-background resize-none" 
+                  />
+                  <button disabled={isSubmitting} className="w-full rounded-md bg-[#0F3D5E] text-white py-3 font-semibold hover:bg-[#0F3D5E]/90 hover:shadow-lg transition disabled:opacity-50 tracking-wider uppercase">
+                    {isSubmitting ? "SENDING..." : "SUBMIT ENQUIRY"}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
         </div>
       </section>
     </>
