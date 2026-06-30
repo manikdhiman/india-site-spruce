@@ -85,7 +85,7 @@ function ContactPage() {
   const [service, setService] = useState("");
   const [message, setMessage] = useState("");
 
-  // ⚡ This completely forces React to bypass server-side layout comparison for the inputs
+  // Forces React to bypass server-side layout comparison for the inputs
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -166,7 +166,7 @@ function ContactPage() {
             </div>
           </div>
 
-          {/* 🛡️ Complete UI Mounting Shield wrapper */}
+          {/* Complete UI Mounting Shield wrapper */}
           {!isMounted ? (
             <div className="rounded-xl border border-border bg-card p-7 md:p-9 shadow-lg space-y-4 w-full h-[550px] flex flex-col justify-center items-center">
               <div className="w-10 h-10 border-4 border-[#0F3D5E] border-t-transparent rounded-full animate-spin"></div>
@@ -233,3 +233,4 @@ function ContactPage() {
       </section>
     </>
   );
+}
