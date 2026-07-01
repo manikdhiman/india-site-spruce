@@ -31,15 +31,15 @@ function RootComponent() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-6 max-w-7xl mx-auto">
           
-         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-90">
-  <img 
-  src={logoImg} 
-  alt="CS Consultancy Services Logo" 
-  /* ⚡ Cleaned layout sizing to let your local asset shine naturally */
-  className="h-14 w-auto object-contain max-w-[220px]"
-  loading="eager"
-/>
-</Link>
+          <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-90">
+            <img 
+              src={logoImg} 
+              alt="CS Consultancy Services Logo" 
+              /* ⚡ Cleaned layout sizing to let your local asset shine naturally */
+              className="h-14 w-auto object-contain max-w-[220px]"
+              loading="eager"
+            />
+          </Link>
 
           {/* Navigation Items */}
           <nav className="flex items-center gap-6 text-sm font-medium">
@@ -72,6 +72,13 @@ function RootComponent() {
               className="transition-colors hover:text-foreground/80 text-foreground/60 [&.active]:text-foreground [&.active]:font-semibold"
             >
               Updates
+            </Link>
+            {/* ⚡ Added Contact Us Item — routes dynamically straight to your shielded quotes handler */}
+            <Link 
+              to="/contact" 
+              className="transition-colors hover:text-foreground/80 text-foreground/60 [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              Contact Us
             </Link>
           </nav>
 
