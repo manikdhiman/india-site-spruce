@@ -94,6 +94,7 @@ function Home() {
 
 // ---------- Sub-components ----------
 
+// ⚡ Updated Main Hero Component Function (Form Card Removed)
 function Hero() {
   const [slide, setSlide] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -110,9 +111,12 @@ function Hero() {
 
   return (
     <section className="relative bg-[#0F3D5E] text-white overflow-hidden">
+      
+      {/* Moving ambient blobs updated to matching blue tones */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-400/20 blur-3xl animate-blob" />
       <div className="absolute -bottom-32 right-10 h-[28rem] w-[28rem] rounded-full bg-sky-600/20 blur-3xl animate-blob-2" />
 
+      {/* Slide images crossfade + ken-burns */}
       {SLIDES.map((sl, i) => (
         <img
           key={i}
@@ -122,12 +126,15 @@ function Hero() {
         />
       ))}
       
+      {/* Changed the gradient backdrop overlay from purple to your authentic Navy Blue gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0F3D5E] via-[#0F3D5E]/90 to-transparent" />
 
-      <div className="relative container mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
-        <div key={slide} className="reveal in-view">
+      {/* ⚡ Layout updated to a spacious single-column flex structure for better look without the card */}
+      <div className="relative container mx-auto px-4 py-20 md:py-32 flex flex-col justify-center items-start max-w-5xl">
+        <div key={slide} className="reveal in-view w-full">
+          {/* Accent text changed to high-contrast sky blue */}
           <div className="text-sky-300 font-semibold tracking-wide uppercase text-sm mb-3">{s.eyebrow}</div>
-          <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-2xl">{s.title}</h1>
+          <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl">{s.title}</h1>
           <ul className="mt-6 space-y-2 text-lg">
             {s.bullets.map((b, i) => (
               <li key={b} className="flex items-center gap-2 reveal in-view" style={{ animationDelay: `${i * 80}ms` }}>
@@ -159,12 +166,11 @@ function Hero() {
             </button>
           </div>
 
+          {/* Progress bar tracking engine updated to matching sky blue */}
           <div className="mt-4 h-0.5 w-44 bg-white/20 rounded overflow-hidden">
             {playing && <div key={slide} className="h-full bg-sky-400 animate-progress" />}
           </div>
         </div>
-        
-        <ContactCard />
       </div>
     </section>
   );
